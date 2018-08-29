@@ -1,23 +1,33 @@
-import { Action } from '@app/core';
+import { SettingsState } from './settings.model';
+import { SettingsActions, SettingsActionTypes } from './settings.actions';
 
-export const initialState = {
-  theme: 'DEFAULT-THEME'
+export const initialState: SettingsState = {
+  language: 'en',
+  theme: 'DEFAULT-THEME',
+  autoNightMode: false,
+  pageAnimations: true,
+  pageAnimationsDisabled: false,
+  elementsAnimations: true
 };
 
-export const SETTINGS_KEY = 'SETTINGS';
-export const SETTINGS_CHANGE_THEME = 'SETTINGS_CHANGE_THEME';
-
-export const actionChangeTheme = (theme: string) => ({
-  type: SETTINGS_CHANGE_THEME,
-  payload: theme
-});
-
-export const selectorSettings = state => state.settings || { theme: '' };
-
-export function settingsReducer(state = initialState, action: Action) {
+export function settingsReducer(
+  state: SettingsState = initialState,
+  action: SettingsActions
+): SettingsState {
   switch (action.type) {
-    case SETTINGS_CHANGE_THEME:
-      return { theme: action.payload };
+    case SettingsActionTypes.CHANGE_LANGUAGE:
+    case SettingsActionTypes.CHANGE_THEME:
+    case SettingsActionTypes.CHANGE_AUTO_NIGHT_AUTO_MODE:
+    case SettingsActionTypes.CHANGE_ANIMATIONS_PAGE:
+    case SettingsActionTypes.CHANGE_ANIMATIONS_ELEMENTS:
+      return { ...state, ...action.payload };
+
+    case SettingsActionTypes.CHANGE_ANIMATIONS_PAGE_DISABLED:
+      return {
+        ...state,
+        pageAnimations: false,
+        pageAnimationsDisabled: action.payload.pageAnimationsDisabled
+      };
 
     default:
       return state;

@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
-import { Observable } from 'rxjs/Observable';
-import { tap } from 'rxjs/operators/tap';
+import { Action } from '@ngrx/store';
+import { Actions, Effect, ofType } from '@ngrx/effects';
+import { tap } from 'rxjs/operators';
 
-import { LocalStorageService, Action } from '@app/core';
+import { LocalStorageService } from '@app/core';
 
-import { TODOS_KEY, TODOS_PERSIST } from './todos.reducer';
+import { ActionTodosPersist, TodosActionTypes } from './todos.actions';
+
+export const TODOS_KEY = 'EXAMPLES.TODOS';
 
 @Injectable()
 export class TodosEffects {
@@ -15,13 +17,12 @@ export class TodosEffects {
   ) {}
 
   @Effect({ dispatch: false })
-  persistTodos(): Observable<Action> {
-    return this.actions$
-      .ofType(TODOS_PERSIST)
-      .pipe(
-        tap(action =>
-          this.localStorageService.setItem(TODOS_KEY, action.payload)
-        )
-      );
+  persistTodos() {
+    return this.actions$.pipe(
+      ofType<ActionTodosPersist>(TodosActionTypes.PERSIST),
+      tap(action =>
+        this.localStorageService.setItem(TODOS_KEY, action.payload.todos)
+      )
+    );
   }
 }

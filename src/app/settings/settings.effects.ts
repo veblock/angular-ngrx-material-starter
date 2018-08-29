@@ -1,27 +1,35 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
-import { Observable } from 'rxjs/Observable';
-import { tap } from 'rxjs/operators/tap';
+import { Action } from '@ngrx/store';
+import { Actions, Effect, ofType } from '@ngrx/effects';
+import { tap } from 'rxjs/operators';
 
-import { LocalStorageService, Action } from '@app/core';
+import { LocalStorageService, AnimationsService } from '@app/core';
 
-import { SETTINGS_KEY, SETTINGS_CHANGE_THEME } from './settings.reducer';
+import { ActionSettingsPersist, SettingsActionTypes } from './settings.actions';
+
+export const SETTINGS_KEY = 'SETTINGS';
 
 @Injectable()
 export class SettingsEffects {
   constructor(
     private actions$: Actions<Action>,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private animationsService: AnimationsService
   ) {}
 
   @Effect({ dispatch: false })
-  persistThemeSettings(): Observable<Action> {
-    return this.actions$.ofType(SETTINGS_CHANGE_THEME).pipe(
-      tap(action =>
-        this.localStorageService.setItem(SETTINGS_KEY, {
-          theme: action.payload
-        })
-      )
+  persistSettings() {
+    return this.actions$.pipe(
+      ofType<ActionSettingsPersist>(SettingsActionTypes.PERSIST),
+      tap(action => {
+        const { settings } = action.payload;
+        const { pageAnimations, elementsAnimations } = settings;
+        this.localStorageService.setItem(SETTINGS_KEY, settings);
+        this.animationsService.updateRouteAnimationType(
+          pageAnimations,
+          elementsAnimations
+        );
+      })
     );
   }
 }

@@ -1,54 +1,45 @@
-import { Action } from '@app/core';
+import { StockMarketState } from './stock-market.model';
+import {
+  StockMarketActions,
+  StockMarketActionTypes
+} from './stock-market.actions';
 
-export const initialState = {
-  symbol: 'GOOGL'
+export const initialState: StockMarketState = {
+  symbol: 'GOOGL',
+  loading: false
 };
 
-export const STOCK_MARKET_KEY = 'EXAMPLES.STOCKS';
-export const STOCK_MARKET_RETRIEVE = 'STOCK_MARKET_RETRIEVE';
-export const STOCK_MARKET_RETRIEVE_SUCCESS = 'STOCK_MARKET_RETRIEVE_SUCCESS';
-export const STOCK_MARKET_RETRIEVE_ERROR = 'STOCK_MARKET_RETRIEVE_ERROR';
-
-export const actionRetrieveStock = (symbol: string) => ({
-  type: STOCK_MARKET_RETRIEVE,
-  payload: symbol
-});
-
-export const selectorStocks = state => state.examples.stocks;
-
-export function stockMarketReducer(state = initialState, action: Action) {
+export function stockMarketReducer(
+  state: StockMarketState = initialState,
+  action: StockMarketActions
+): StockMarketState {
   switch (action.type) {
-    case STOCK_MARKET_RETRIEVE:
-      return Object.assign({}, state, {
+    case StockMarketActionTypes.RETRIEVE:
+      return {
+        ...state,
         loading: true,
         stock: null,
         error: null,
-        symbol: action.payload
-      });
+        symbol: action.payload.symbol
+      };
 
-    case STOCK_MARKET_RETRIEVE_SUCCESS:
-      return Object.assign({}, state, {
+    case StockMarketActionTypes.RETRIEVE_SUCCESS:
+      return {
+        ...state,
         loading: false,
-        stock: action.payload,
+        stock: action.payload.stock,
         error: null
-      });
+      };
 
-    case STOCK_MARKET_RETRIEVE_ERROR:
-      return Object.assign({}, state, {
+    case StockMarketActionTypes.RETRIEVE_ERROR:
+      return {
+        ...state,
         loading: false,
         stock: null,
-        error: action.payload
-      });
+        error: action.payload.error
+      };
 
     default:
       return state;
   }
-}
-
-export interface Stock {
-  symbol: string;
-  exchange: string;
-  last: string;
-  ccy: string;
-  change: string;
 }

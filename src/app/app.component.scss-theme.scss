@@ -24,10 +24,14 @@
     }
 
     mat-sidenav {
-      a {
+      .mat-list-item {
         &.active {
           color: mat-color($accent, default-contrast);
-          background-color: mat-color($accent);
+          background-color: mat-color($accent) !important;
+
+          &:hover {
+            background-color: mat-color($accent, darker) !important;
+          }
         }
       }
     }

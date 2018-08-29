@@ -1,8 +1,9 @@
 import { v4 as uuid } from 'uuid';
 
-import { Action } from '@app/core';
+import { TodosActions, TodosActionTypes } from './todos.actions';
+import { Todo, TodosState } from './todos.model';
 
-export const initialState = {
+export const initialState: TodosState = {
   items: [
     { id: uuid(), name: 'Open Todo list example', done: true },
     { id: uuid(), name: 'Check the other examples', done: false },
@@ -15,72 +16,43 @@ export const initialState = {
   filter: 'ALL'
 };
 
-export type TodoFilter = 'ALL' | 'DONE' | 'ACTIVE';
-
-export const TODOS_KEY = 'EXAMPLES.TODOS';
-export const TODOS_ADD = 'TODOS_ADD';
-export const TODOS_TOGGLE = 'TODOS_TOGGLE';
-export const TODOS_REMOVE_DONE = 'TODOS_REMOVE_DONE';
-export const TODOS_FILTER = 'TODOS_FILTER';
-export const TODOS_PERSIST = 'TODOS_PERSIST';
-
-export const actionRemoveDoneTodos = () => ({ type: TODOS_REMOVE_DONE });
-export const actionAddTodo = (name: string) => ({
-  type: TODOS_ADD,
-  payload: name
-});
-export const actionToggleTodo = (id: string) => ({
-  type: TODOS_TOGGLE,
-  payload: id
-});
-export const actionPersistTodos = todos => ({
-  type: TODOS_PERSIST,
-  payload: todos
-});
-export const actionFilterTodos = (filter: TodoFilter) => ({
-  type: TODOS_FILTER,
-  payload: filter
-});
-
-export const selectorTodos = state => state.examples.todos;
-
-export function todosReducer(state = initialState, action: Action) {
+export function todosReducer(
+  state: TodosState = initialState,
+  action: TodosActions
+): TodosState {
   switch (action.type) {
-    case TODOS_ADD:
-      return Object.assign({}, state, {
-        items: state.items.concat({
-          id: uuid(),
-          name: action.payload,
-          done: false
-        })
-      });
+    case TodosActionTypes.ADD:
+      return {
+        ...state,
+        items: [
+          {
+            id: action.payload.id,
+            name: action.payload.name,
+            done: false
+          },
+          ...state.items
+        ]
+      };
 
-    case TODOS_TOGGLE:
-      state.items.some((item: Todo) => {
-        if (item.id === action.payload) {
-          item.done = !item.done;
-          return true;
-        }
-      });
-      return Object.assign({}, state, {
-        items: [...state.items]
-      });
+    case TodosActionTypes.TOGGLE:
+      return {
+        ...state,
+        items: state.items.map(
+          (item: Todo) =>
+            item.id === action.payload.id ? { ...item, done: !item.done } : item
+        )
+      };
 
-    case TODOS_REMOVE_DONE:
-      return Object.assign({}, state, {
+    case TodosActionTypes.REMOVE_DONE:
+      return {
+        ...state,
         items: state.items.filter((item: Todo) => !item.done)
-      });
+      };
 
-    case TODOS_FILTER:
-      return Object.assign({}, state, { filter: action.payload });
+    case TodosActionTypes.FILTER:
+      return { ...state, filter: action.payload.filter };
 
     default:
       return state;
   }
-}
-
-export interface Todo {
-  id: string;
-  name: string;
-  done: boolean;
 }
